@@ -255,9 +255,9 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
                     {selectedSubject ? (
                         <motion.div
                             key="subject-details"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0 }} // Only opacity for fade-in
+                            animate={{ opacity: 1 }} // Only opacity for fade-in
+                            exit={{ opacity: 0 }} // Only opacity for fade-out
                             transition={{ duration: 0.3 }}
                         >
                             <button
@@ -304,9 +304,9 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
                     ) : (
                         <motion.div
                             key="subject-list"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0 }} // Only opacity for fade-in
+                            animate={{ opacity: 1 }} // Only opacity for fade-in
+                            exit={{ opacity: 0 }} // Only opacity for fade-out
                             transition={{ duration: 0.3 }}
                         >
                             {renderSubjectList()}

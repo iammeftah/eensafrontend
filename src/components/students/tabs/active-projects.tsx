@@ -17,12 +17,19 @@ interface User {
     };
 }
 
+interface Task {
+    id: string;
+    description: string;
+    completed: boolean;
+    assignedTo?: string; // ID of the user assigned to the task
+}
+
 interface Project {
     id: string;
     title: string;
     description: string;
     members: User[];
-    tasks: { id: string; description: string; completed: boolean }[];
+    tasks: Task[];
     progress: number;
 }
 
@@ -51,16 +58,77 @@ const initialProjects: Project[] = [
                 skills: { frontend: 60, backend: 70, uiux: 50, security: 60, devops: 80 }
             },
         ],
-        tasks: [
-            { id: 't1', description: 'Design user interface', completed: true },
-            { id: 't2', description: 'Implement authentication system', completed: true },
-            { id: 't3', description: 'Develop course management module', completed: false },
-            { id: 't4', description: 'Create interactive quizzes', completed: false },
-        ],
-        progress: 50,
+        tasks: [], // Initially, tasks are empty
+        progress: 0,
     },
     // Add more projects as needed
 ];
+
+// Mock AI API call to generate tasks
+const generateTasks = async (): Promise<Task[]> => {
+    // Simulate an API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mock AI-generated tasks (only essential tasks for an academic project)
+    return [
+        // Frontend tasks
+        { id: 't1', description: 'Design user interface', completed: false },
+        { id: 't2', description: 'Implement frontend routing', completed: false },
+
+        // Backend tasks
+        { id: 't3', description: 'Set up backend API', completed: false },
+        { id: 't4', description: 'Implement user authentication', completed: false },
+
+        // UI/UX tasks
+        { id: 't5', description: 'Create wireframes', completed: false },
+
+        // Security tasks
+        { id: 't6', description: 'Implement HTTPS', completed: false },
+
+        // DevOps tasks
+        { id: 't7', description: 'Set up CI/CD pipeline', completed: false },
+    ];
+};
+
+// Function to assign tasks to team members based on their skills
+const assignTasksToMembers = (tasks: Task[], members: User[]): Task[] => {
+    const assignedTasks: Task[] = [];
+    const memberTaskCount: { [key: string]: number } = {};
+
+    // Initialize task count for each member
+    members.forEach(member => {
+        memberTaskCount[member.id] = 0;
+    });
+
+    // Assign tasks to members with the least tasks and the highest skill in the relevant category
+    tasks.forEach(task => {
+        // Determine which skill category the task belongs to
+        const skillCategory = task.description.toLowerCase().includes('frontend') ? 'frontend' :
+            task.description.toLowerCase().includes('backend') ? 'backend' :
+                task.description.toLowerCase().includes('ui/ux') || task.description.toLowerCase().includes('design') ? 'uiux' :
+                    task.description.toLowerCase().includes('security') ? 'security' :
+                        'devops';
+
+        // Find the member with the highest skill in the relevant category and the least tasks
+        const assignedMember = members.reduce((prev, current) => {
+            if (current.skills[skillCategory] > prev.skills[skillCategory] ||
+                (current.skills[skillCategory] === prev.skills[skillCategory] && memberTaskCount[current.id] < memberTaskCount[prev.id])) {
+                return current;
+            }
+            return prev;
+        });
+
+        // Assign the task to the selected member
+        assignedTasks.push({ ...task, assignedTo: assignedMember.id });
+        memberTaskCount[assignedMember.id]++;
+    });
+
+    return assignedTasks;
+};
+
+
+
+// ... (rest of the imports and interfaces remain the same)
 
 export default function ActiveProjects() {
     const [projects, setProjects] = useState<Project[]>(initialProjects);
@@ -71,7 +139,32 @@ export default function ActiveProjects() {
         console.log("Projects:", projects); // Debugging log
     }, [projects]);
 
+    // Function to initialize tasks for a project
+    const initializeTasks = async (projectId: string) => {
+        const projectIndex = projects.findIndex(p => p.id === projectId);
+        if (projectIndex === -1) return;
+
+        // Generate tasks using the mock AI API
+        const tasks = await generateTasks();
+
+        // Assign tasks to team members based on their skills
+        const assignedTasks = assignTasksToMembers(tasks, projects[projectIndex].members);
+
+        // Update the project with the assigned tasks
+        const updatedProjects = [...projects];
+        updatedProjects[projectIndex] = {
+            ...updatedProjects[projectIndex],
+            tasks: assignedTasks,
+        };
+
+        setProjects(updatedProjects);
+    };
+
     const toggleProject = (projectId: string) => {
+        if (expandedProject !== projectId) {
+            // Initialize tasks when the project is expanded for the first time
+            initializeTasks(projectId);
+        }
         setExpandedProject(expandedProject === projectId ? null : projectId);
     };
 
@@ -81,6 +174,29 @@ export default function ActiveProjects() {
 
     const closeUserModal = () => {
         setSelectedUser(null);
+    };
+
+    // Function to group tasks by their skill category
+    const groupTasksByCategory = (tasks: Task[]) => {
+        const groupedTasks: { [key: string]: Task[] } = {
+            Frontend: [],
+            Backend: [],
+            'UI/UX': [],
+            Security: [],
+            DevOps: [],
+        };
+
+        tasks.forEach(task => {
+            const skillCategory = task.description.toLowerCase().includes('frontend') ? 'Frontend' :
+                task.description.toLowerCase().includes('backend') ? 'Backend' :
+                    task.description.toLowerCase().includes('ui/ux') || task.description.toLowerCase().includes('design') ? 'UI/UX' :
+                        task.description.toLowerCase().includes('security') ? 'Security' :
+                            'DevOps';
+
+            groupedTasks[skillCategory].push(task);
+        });
+
+        return groupedTasks;
     };
 
     return (
@@ -134,20 +250,29 @@ export default function ActiveProjects() {
 
                                     {/* Tasks */}
                                     <h4 className="font-semibold text-neutral-700 dark:text-neutral-300 mt-4 mb-2">Tasks:</h4>
-                                    <ul className="space-y-2 mb-4">
-                                        {project.tasks.map((task) => (
-                                            <li key={task.id} className="flex items-center gap-2">
-                                                {task.completed ? (
-                                                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                                ) : (
-                                                    <Check className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
-                                                )}
-                                                <span className={`${task.completed ? 'line-through text-neutral-500 dark:text-neutral-400' : 'text-neutral-800 dark:text-neutral-200'}`}>
-                                                    {task.description}
-                                                </span>
-                                            </li>
+                                    <div className="space-y-6">
+                                        {Object.entries(groupTasksByCategory(project.tasks)).map(([category, tasks]) => (
+                                            <div key={category}>
+                                                <h5 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                                                    {category} Tasks
+                                                </h5>
+                                                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                                    {tasks.map((task) => (
+                                                        <li key={task.id} className="flex items-center gap-2 p-3 bg-neutral-100 dark:bg-neutral-700 rounded-lg">
+                                                            {task.completed ? (
+                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                                            ) : (
+                                                                <Check className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
+                                                            )}
+                                                            <span className={`${task.completed ? 'line-through text-neutral-500 dark:text-neutral-400' : 'text-neutral-800 dark:text-neutral-200'}`}>
+                                                                {task.description} (Assigned to: {project.members.find(m => m.id === task.assignedTo)?.name || 'Unassigned'})
+                                                            </span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
 
                                     {/* Progress Bar */}
                                     <div className="mt-4">

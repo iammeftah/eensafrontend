@@ -83,10 +83,10 @@ function Hero() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full md:w-1/3">
               <Button
                   size="lg"
-                  className="gap-2 bg-amber-800 hover:bg-amber-900 text-white dark:bg-amber-700 dark:hover:bg-amber-800 px-6 py-2"
+                  className="gap-2 w-full bg-amber-800 hover:bg-amber-900 text-white dark:bg-amber-700 dark:hover:bg-amber-800 px-6 py-2"
               >
                 Start Learning Now
                 <BookOpen className="w-4 h-4" />
@@ -94,7 +94,7 @@ function Hero() {
               <Button
                   size="lg"
                   variant="outline"
-                  className="gap-2 border-[#8B4513] text-[#8B4513] text-amber-900 dark:text-stone-100 hover:bg-amber-50 dark:hover:bg-stone-800 px-6 py-2"
+                  className="gap-2 w-full border-[#8B4513] text-[#8B4513] text-amber-900 dark:text-stone-100 hover:bg-amber-50 dark:hover:bg-stone-800 px-6 py-2"
               >
                 Explore Courses
                 <Sparkles className="w-4 h-4" />

@@ -37,7 +37,7 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
                             <Button
                                 variant="ghost"
                                 onClick={() => handleItemClick(item.id)}
-                                className={`w-full justify-start px-4 py-2 ${
+                                className={`w-full justify-start px-4 py-2 my-1 ${
                                     activeItem === item.id
                                         ? 'bg-amber-100 dark:bg-stone-700 font-semibold text-neutral-800 dark:text-neutral-200'
                                         : 'text-neutral-600 dark:text-neutral-400 hover:bg-amber-50 dark:hover:bg-neutral-700'

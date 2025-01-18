@@ -42,7 +42,7 @@ export default function StudentSpace() {
             case 'chat':
                 return <Chat darkMode={darkMode} />;
             case 'edit-progress':
-                return <EditProgress />;
+                return <EditProgress darkMode={darkMode} />;
             default:
                 return <ActiveProjects />;
         }

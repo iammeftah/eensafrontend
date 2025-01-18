@@ -26,7 +26,7 @@ export default function UserSkillChart({ frontend, backend, uiux, security, devo
     ]
 
     return (
-        <div className="w-full max-w-3xl mx-auto bg-transparent rounded-lg overflow-hidden h-[400px] flex flex-col">
+        <div className="w-full max-w-3xl mx-auto bg-white dark:bg-neutral-800 rounded-lg overflow-hidden h-[400px] flex flex-col">
             <div className="p-6 flex flex-col h-full">
                 <div className="flex-grow">
                     <ResponsiveContainer width="100%" height="100%">

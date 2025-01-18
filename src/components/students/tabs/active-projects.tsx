@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from "../../../components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCircle, User } from 'lucide-react';
+import { Check, CheckCircle, User, X } from 'lucide-react';
 import UserSkillChart from './UserSkillsChart';
 
 interface User {
@@ -378,23 +378,29 @@ export default function ActiveProjects() {
                 <p className="text-neutral-600 dark:text-neutral-400">No projects found.</p>
             )}
 
-            {/* User Skills Modal */}
             <AnimatePresence>
                 {selectedUser && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+                        className="fixed inset-0 flex items-center justify-center z-50"
                         onClick={closeUserModal}
                     >
                         <motion.div
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
-                            className="bg-white/90 dark:bg-neutral-800/90 rounded-lg p-6 max-w-md w-full"
+                            className="bg-white dark:bg-neutral-800 shadow-xl rounded-lg p-6 max-w-md w-full mx-4 relative"
                             onClick={(e) => e.stopPropagation()}
                         >
+                            <button
+                                onClick={closeUserModal}
+                                className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+
                             <div className="flex items-center gap-4 mb-6">
                                 <img
                                     src={selectedUser.avatar || "/placeholder.svg"}
@@ -405,7 +411,8 @@ export default function ActiveProjects() {
                                     {selectedUser.name}
                                 </h3>
                             </div>
-                            <div className="space-y-4">
+
+                            <div className="space-y-4 bg-white dark:bg-neutral-800">
                                 <h4 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300">
                                     Skills
                                 </h4>
@@ -417,12 +424,6 @@ export default function ActiveProjects() {
                                     devops={selectedUser.skills.devops}
                                 />
                             </div>
-                            <Button
-                                onClick={closeUserModal}
-                                className="mt-6 w-full bg-[#8B4513] hover:bg-[#7a3a0f] text-white dark:bg-[#8B4513] dark:hover:bg-[#7a3a0f]"
-                            >
-                                Close
-                            </Button>
                         </motion.div>
                     </motion.div>
                 )}

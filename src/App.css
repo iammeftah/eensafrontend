@@ -7,6 +7,10 @@
   font-family: "Poppins", serif;
 }
 
+button{
+  @apply outline-none
+}
+
 /* Global scrollbar styling */
 * {
   scrollbar-width: none; /* For Firefox */

@@ -25,7 +25,7 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
     }
 
     return (
-        <div className="w-96 bg-white/80 dark:bg-neutral-800/50 shadow-md flex flex-col h-screen fixed left-0 top-0">
+        <div className="w-96 bg-white/80 dark:bg-neutral-800/50 shadow-md flex flex-col h-screen fixed left-0 top-0 z-10">
             <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
                 <img src="/logoensam.svg" alt="ENSA Marrakech Logo" className="w-24 h-24 mb-4" />
                 <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">Student Space</h1>
@@ -62,3 +62,4 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
         </div>
     )
 }
+

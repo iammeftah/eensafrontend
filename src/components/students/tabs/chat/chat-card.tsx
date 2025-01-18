@@ -1,15 +1,9 @@
 // components/ui/chat-card.tsx
 "use client"
 
-import {
-    SmilePlus,
-    Check,
-    CheckCheck,
-    MoreHorizontal,
-    Send,
-} from "lucide-react"
+import { SmilePlus, Check, CheckCheck, MoreHorizontal, Send } from 'lucide-react'
 import { cn } from "../../../../lib/utils"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export interface Message {
     id: string
@@ -63,6 +57,30 @@ export function ChatCard({
                          }: ChatCardProps) {
     const [messages, setMessages] = useState<Message[]>(initialMessages)
     const [inputValue, setInputValue] = useState("")
+    const [reactionMenuMessageId, setReactionMenuMessageId] = useState<string | null>(null)
+    const reactionMenuRef = useRef<HTMLDivElement>(null)
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    // Automatically scroll to the bottom when new messages are added
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+        }
+    }, [messages])
+
+    // Close reaction menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (reactionMenuRef.current && !reactionMenuRef.current.contains(event.target as Node)) {
+                setReactionMenuMessageId(null)
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [])
 
     const handleSendMessage = () => {
         if (!inputValue.trim()) return
@@ -88,7 +106,7 @@ export function ChatCard({
         setInputValue("")
         onSendMessage?.(inputValue)
 
-        // Имитация получения статуса сообщения
+        // Simulate message status updates
         setTimeout(() => {
             setMessages((prev) =>
                 prev.map((msg) =>
@@ -141,19 +159,27 @@ export function ChatCard({
         onReaction?.(messageId, emoji)
     }
 
+    const handleDoubleClickMessage = (messageId: string) => {
+        setReactionMenuMessageId(messageId)
+    }
+
     const isLightTheme = theme === "light"
+
+    const reactionEmojis = ["👍", "👎", "❤️", "🎉", "😂", "😮", "😢", "👀"]
 
     return (
         <div
             className={cn(
-                "w-full  mx-auto rounded-2xl overflow-hidden",
+                "w-full h-full flex flex-col rounded-2xl overflow-hidden",
                 isLightTheme
                     ? "bg-white text-zinc-900 border border-zinc-200"
                     : "bg-zinc-900 text-zinc-100",
                 className,
             )}
         >
-            <div className="flex flex-col h-full w-full">
+            <div
+                className="flex flex-col h-full w-full"
+            >
                 {/* Header */}
                 <div
                     className={cn(
@@ -163,7 +189,8 @@ export function ChatCard({
                 >
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <div className="w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-lg font-medium text-white">
+                            <div
+                                className="w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-lg font-medium text-white">
                                 {chatName.charAt(0)}
                             </div>
                             <div
@@ -202,16 +229,16 @@ export function ChatCard({
                                 : "hover:bg-zinc-800 text-zinc-400",
                         )}
                     >
-                        <MoreHorizontal className="w-5 h-5" />
+                        <MoreHorizontal className="w-5 h-5"/>
                     </button>
                 </div>
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {messages.map((message) => (
-                        <div key={message.id} className="flex items-start gap-3">
+                        <div key={message.id} className="flex items-start gap-3" onDoubleClick={() => handleDoubleClickMessage(message.id)}>
                             <img
-                                src={message.sender.avatar}
+                                src={message.sender.avatar || "/placeholder.svg"}
                                 alt={message.sender.name}
                                 width={36}
                                 height={36}
@@ -269,11 +296,29 @@ export function ChatCard({
                                         ))}
                                     </div>
                                 )}
+                                {reactionMenuMessageId === message.id && (
+                                    <div ref={reactionMenuRef} className="flex items-center gap-1 mt-2">
+                                        {reactionEmojis.map((emoji) => (
+                                            <button
+                                                key={emoji}
+                                                onClick={() => handleReaction(message.id, emoji)}
+                                                className={cn(
+                                                    "px-2 py-1 rounded-lg text-sm flex items-center gap-1",
+                                                    isLightTheme
+                                                        ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                                                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700",
+                                                )}
+                                            >
+                                                <span>{emoji}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex items-center self-end mb-1">
                                 {message.status === "read" && (
                                     <div className="flex">
-                                        <CheckCheck className="w-4 h-4 text-blue-500" />
+                                        <CheckCheck className="w-4 h-4 text-blue-500"/>
                                     </div>
                                 )}
                                 {message.status === "delivered" && (
@@ -287,6 +332,8 @@ export function ChatCard({
                             </div>
                         </div>
                     ))}
+                    {/* Empty div to scroll into view */}
+                    <div ref={messagesEndRef} />
                 </div>
 
                 {/* Input */}
@@ -321,7 +368,7 @@ export function ChatCard({
                                         : "hover:bg-zinc-700 text-zinc-400",
                                 )}
                             >
-                                <SmilePlus className="w-5 h-5" />
+                                <SmilePlus className="w-5 h-5"/>
                             </button>
                         </div>
                         <button
@@ -333,7 +380,7 @@ export function ChatCard({
                                     : "bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-300",
                             )}
                         >
-                            <Send className="w-5 h-5" />
+                            <Send className="w-5 h-5"/>
                         </button>
                     </div>
                 </div>

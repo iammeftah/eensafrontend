@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "../../../components/ui/button";
 import { FileText, FileSearch, BookOpen, Clipboard, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -119,6 +119,7 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
     const [activeTab, setActiveTab] = useState<'courses' | 'exercises' | 'oldExams' | 'notes'>('courses');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const tabs = ['courses', 'exercises', 'oldExams', 'notes'] as const;
 
@@ -160,27 +161,42 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
         </Button>
     );
 
+    const SubjectSkeleton = () => (
+        <div className={`${darkMode ? 'bg-neutral-800/50' : 'bg-white/80'} shadow-md rounded-lg p-6 flex flex-col min-h-[150px] h-full`}>
+            <div className={`h-6 w-3/4 ${darkMode ? 'bg-neutral-700' : 'bg-neutral-200'} rounded animate-pulse`}></div>
+        </div>
+    );
+
     const renderSubjectList = () => (
-        semesters.map((semester) => (
-            <div key={semester.id} className="space-y-6">
-                <h3 className={`text-2xl font-semibold ${darkMode ? 'text-neutral-300' : 'text-neutral-700'}`}>
-                    {semester.name} ({semester.scholarYear})
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {semester.subjects.map((subject) => (
-                        <div
-                            key={subject.id}
-                            className={`${darkMode ? 'bg-neutral-800/50' : 'bg-white/80'} shadow-md rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow`}
-                            onClick={() => openSubject(subject)}
-                        >
-                            <h4 className={`text-xl font-semibold ${darkMode ? 'text-neutral-300' : 'text-neutral-700'}`}>
-                                {subject.name}
-                            </h4>
-                        </div>
-                    ))}
+        <div className="space-y-12">
+            {semesters.map((semester) => (
+                <div key={semester.id} className="space-y-6">
+                    <h3 className={`text-2xl font-semibold ${darkMode ? 'text-neutral-300' : 'text-neutral-700'}`}>
+                        {semester.name} ({semester.scholarYear})
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {loading
+                            ? Array(8).fill(0).map((_, index) => (
+                                <div key={index} className="flex flex-col h-full">
+                                    <SubjectSkeleton />
+                                </div>
+                            ))
+                            : semester.subjects.map((subject) => (
+                                <div
+                                    key={subject.id}
+                                    className={`${darkMode ? 'bg-neutral-800/50' : 'bg-white/80'} shadow-md rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow flex flex-col min-h-[150px]`}
+                                    onClick={() => openSubject(subject)}
+                                >
+                                    <h4 className={`text-xl font-semibold ${darkMode ? 'text-neutral-300' : 'text-neutral-700'}`}>
+                                        {subject.name}
+                                    </h4>
+                                </div>
+                            ))
+                        }
+                    </div>
                 </div>
-            </div>
-        ))
+            ))}
+        </div>
     );
 
     const renderTabContent = () => {
@@ -210,6 +226,14 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
             </p>
         );
     };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <div className={`space-y-6 ${darkMode ? 'dark' : ''}`}>
@@ -255,9 +279,9 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
                     {selectedSubject ? (
                         <motion.div
                             key="subject-details"
-                            initial={{ opacity: 0 }} // Only opacity for fade-in
-                            animate={{ opacity: 1 }} // Only opacity for fade-in
-                            exit={{ opacity: 0 }} // Only opacity for fade-out
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                         >
                             <button
@@ -268,45 +292,49 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
                                 <span>Back to Subjects</span>
                             </button>
 
-                            <div className={`${darkMode ? 'bg-neutral-800/50' : 'bg-white/80'} shadow-md rounded-lg p-6`}>
-                                <h3 className={`text-2xl font-bold ${darkMode ? 'text-neutral-200' : 'text-neutral-800'} mb-4`}>
-                                    {selectedSubject.name}
-                                </h3>
+                            <div className={`${darkMode ? 'bg-neutral-800/50' : 'bg-white/80'} shadow-md rounded-lg p-6 min-h-[calc(100vh-12rem)]`}>
+                                <div className="flex flex-col flex-grow h-full min-h-0">
+                                    <h3 className={`text-2xl font-bold ${darkMode ? 'text-neutral-200' : 'text-neutral-800'} mb-4`}>
+                                        {selectedSubject.name}
+                                    </h3>
 
-                                <div className="relative border-b border-neutral-200 dark:border-neutral-700 mb-4">
-                                    <div className="flex">
-                                        {tabs.map((tab) => (
-                                            <TabButton key={tab} tab={tab} />
-                                        ))}
+                                    <div className="relative border-b border-neutral-200 dark:border-neutral-700 mb-4">
+                                        <div className="flex">
+                                            {tabs.map((tab) => (
+                                                <TabButton key={tab} tab={tab} />
+                                            ))}
+                                        </div>
+                                        <motion.div
+                                            className={`absolute bottom-0 h-0.5 ${
+                                                darkMode ? 'bg-neutral-200' : 'bg-neutral-800'
+                                            }`}
+                                            initial={false}
+                                            animate={{
+                                                width: '25%',
+                                                x: `${tabs.indexOf(activeTab) * 100}%`
+                                            }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 300,
+                                                damping: 30
+                                            }}
+                                        />
                                     </div>
-                                    <motion.div
-                                        className={`absolute bottom-0 h-0.5 ${
-                                            darkMode ? 'bg-neutral-200' : 'bg-neutral-800'
-                                        }`}
-                                        initial={false}
-                                        animate={{
-                                            width: '25%',
-                                            x: `${tabs.indexOf(activeTab) * 100}%`
-                                        }}
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 300,
-                                            damping: 30
-                                        }}
-                                    />
-                                </div>
 
-                                <div className="space-y-2">
-                                    {renderTabContent()}
+                                    <div className="flex-grow overflow-y-auto">
+                                        <div className="space-y-2">
+                                            {renderTabContent()}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
                     ) : (
                         <motion.div
                             key="subject-list"
-                            initial={{ opacity: 0 }} // Only opacity for fade-in
-                            animate={{ opacity: 1 }} // Only opacity for fade-in
-                            exit={{ opacity: 0 }} // Only opacity for fade-out
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                         >
                             {renderSubjectList()}

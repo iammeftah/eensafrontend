@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from "../../../components/ui/button"
 import { BookOpen, MessageCircle, PenTool, Home } from 'lucide-react'
 import DarkModeToggle from '../../../components/layout/DarkModeToggle'
+import { Link } from 'react-router-dom'
 
 interface SidebarProps {
     setActiveTab: (tab: string) => void
@@ -52,9 +53,12 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
             </nav>
             <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
                 <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} className="mb-4" />
-                <Button className="w-full mb-2 bg-[#8B4513] hover:bg-[#7a3a0f] text-white dark:bg-[#8B4513] dark:hover:bg-[#7a3a0f]">
+                <Link
+                    to="/student-profile"
+                    className="w-full mb-2 bg-[#8B4513] hover:bg-[#7a3a0f] text-white dark:bg-[#8B4513] dark:hover:bg-[#7a3a0f] px-4 py-2 rounded-md text-center block"
+                >
                     Profile
-                </Button>
+                </Link>
                 <Button variant="outline" className="w-full border-[#8B4513] text-[#8B4513] hover:bg-amber-50 dark:border-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700">
                     Logout
                 </Button>

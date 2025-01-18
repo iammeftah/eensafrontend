@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from "../../../components/ui/button";
-import { FileText, FileSearch, BookOpen, Clipboard, Menu } from 'lucide-react';
+import { FileText, FileSearch, BookOpen, Clipboard, Menu, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Document {
@@ -288,7 +288,7 @@ export default function Courses({ darkMode }: { darkMode: boolean }) {
                                 onClick={goBack}
                                 className={`flex items-center gap-2 mb-4 ${darkMode ? 'text-[#8B4513] hover:text-[#7a3a0f]' : 'text-[#8B4513] hover:text-[#7a3a0f]'}`}
                             >
-                                <span>←</span>
+                                <span><ChevronLeft size={16} /></span>
                                 <span>Back to Subjects</span>
                             </button>
 

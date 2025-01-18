@@ -3,7 +3,6 @@
 import React from 'react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts'
 import { motion } from 'framer-motion'
-import { User } from '@/types/User';
 
 const saddleBrown = '#8B4513'
 const complementaryColor = '#13678B'

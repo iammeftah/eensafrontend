@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from "../../../components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCircle } from 'lucide-react';
+import { Check, CheckCircle, User } from 'lucide-react';
 import UserSkillChart from './UserSkillsChart';
 
 interface User {
@@ -69,23 +69,14 @@ const generateTasks = async (): Promise<Task[]> => {
     // Simulate an API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Mock AI-generated tasks (only essential tasks for an academic project)
+    // Mock AI-generated tasks (some tasks are completed)
     return [
-        // Frontend tasks
-        { id: 't1', description: 'Design user interface', completed: false },
+        { id: 't1', description: 'Design user interface', completed: true },
         { id: 't2', description: 'Implement frontend routing', completed: false },
-
-        // Backend tasks
-        { id: 't3', description: 'Set up backend API', completed: false },
+        { id: 't3', description: 'Set up backend API', completed: true },
         { id: 't4', description: 'Implement user authentication', completed: false },
-
-        // UI/UX tasks
-        { id: 't5', description: 'Create wireframes', completed: false },
-
-        // Security tasks
+        { id: 't5', description: 'Create wireframes', completed: true },
         { id: 't6', description: 'Implement HTTPS', completed: false },
-
-        // DevOps tasks
         { id: 't7', description: 'Set up CI/CD pipeline', completed: false },
     ];
 };
@@ -126,17 +117,25 @@ const assignTasksToMembers = (tasks: Task[], members: User[]): Task[] => {
     return assignedTasks;
 };
 
-
-
-// ... (rest of the imports and interfaces remain the same)
+const calculateProgress = (tasks: Task[]): number => {
+    if (tasks.length === 0) return 0;
+    const completedTasks = tasks.filter(task => task.completed).length;
+    return Math.round((completedTasks / tasks.length) * 100);
+};
 
 export default function ActiveProjects() {
     const [projects, setProjects] = useState<Project[]>(initialProjects);
     const [expandedProject, setExpandedProject] = useState<string | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [tasksLoading, setTasksLoading] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("Projects:", projects); // Debugging log
+        // Simulate loading delay
+        setTimeout(() => {
+            setLoading(false);
+        }, 2000);
     }, [projects]);
 
     // Function to initialize tasks for a project
@@ -144,20 +143,27 @@ export default function ActiveProjects() {
         const projectIndex = projects.findIndex(p => p.id === projectId);
         if (projectIndex === -1) return;
 
+        setTasksLoading(true);
+
         // Generate tasks using the mock AI API
         const tasks = await generateTasks();
 
         // Assign tasks to team members based on their skills
         const assignedTasks = assignTasksToMembers(tasks, projects[projectIndex].members);
 
-        // Update the project with the assigned tasks
+        // Calculate progress
+        const progress = calculateProgress(assignedTasks);
+
+        // Update the project with the assigned tasks and progress
         const updatedProjects = [...projects];
         updatedProjects[projectIndex] = {
             ...updatedProjects[projectIndex],
             tasks: assignedTasks,
+            progress: progress,
         };
 
         setProjects(updatedProjects);
+        setTasksLoading(false);
     };
 
     const toggleProject = (projectId: string) => {
@@ -202,7 +208,28 @@ export default function ActiveProjects() {
     return (
         <div className="space-y-6">
             <h2 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">Active Projects</h2>
-            {projects.length > 0 ? (
+            {loading ? (
+                // Skeleton loading effect for projects
+                <div className="space-y-6">
+                    {[1, 2].map((index) => (
+                        <div
+                            key={index}
+                            className="bg-white/80 dark:bg-neutral-800/50 shadow-md rounded-lg p-6"
+                        >
+                            <div className="animate-pulse space-y-4">
+                                <div className="flex justify-between items-center">
+                                    {/* Project Title Skeleton */}
+                                    <div className="h-6 bg-neutral-300 dark:bg-neutral-700 rounded w-1/3"></div>
+                                    {/* View Details Button Skeleton */}
+                                    <div className="h-10 bg-neutral-300 dark:bg-neutral-700 rounded w-28"></div>
+                                </div>
+                                {/* Project Description Skeleton */}
+                                <div className="h-4 bg-neutral-300 dark:bg-neutral-700 rounded w-3/4"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : projects.length > 0 ? (
                 projects.map((project) => (
                     <div
                         key={project.id}
@@ -239,7 +266,7 @@ export default function ActiveProjects() {
                                                 onClick={() => openUserModal(member)}
                                             >
                                                 <img
-                                                    src={member.avatar}
+                                                    src={member.avatar || "/placeholder.svg"}
                                                     alt={member.name}
                                                     className="w-10 h-10 rounded-full"
                                                 />
@@ -249,30 +276,82 @@ export default function ActiveProjects() {
                                     </div>
 
                                     {/* Tasks */}
-                                    <h4 className="font-semibold text-neutral-700 dark:text-neutral-300 mt-4 mb-2">Tasks:</h4>
-                                    <div className="space-y-6">
-                                        {Object.entries(groupTasksByCategory(project.tasks)).map(([category, tasks]) => (
-                                            <div key={category}>
-                                                <h5 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                                                    {category} Tasks
-                                                </h5>
-                                                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                                    {tasks.map((task) => (
-                                                        <li key={task.id} className="flex items-center gap-2 p-3 bg-neutral-100 dark:bg-neutral-700 rounded-lg">
-                                                            {task.completed ? (
-                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                                            ) : (
-                                                                <Check className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
-                                                            )}
-                                                            <span className={`${task.completed ? 'line-through text-neutral-500 dark:text-neutral-400' : 'text-neutral-800 dark:text-neutral-200'}`}>
-                                                                {task.description} (Assigned to: {project.members.find(m => m.id === task.assignedTo)?.name || 'Unassigned'})
-                                                            </span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <h4 className="font-semibold text-neutral-700 dark:text-neutral-300 mt-6 mb-4">Tasks:</h4>
+                                    {tasksLoading ? (
+                                        // Task Skeletons while tasks are loading
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {['Frontend', 'Backend', 'UI/UX', 'Security', 'DevOps'].map((category) => (
+                                                <div key={category} className="space-y-4">
+                                                    <h5 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                                                        {category}
+                                                    </h5>
+                                                    <div className="space-y-2">
+                                                        {[1, 2].map((taskIndex) => (
+                                                            <div key={taskIndex} className="h-16 bg-neutral-100 dark:bg-neutral-700 rounded-lg animate-pulse"></div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                                        >
+                                            {Object.entries(groupTasksByCategory(project.tasks)).map(([category, tasks]) => (
+                                                <motion.div
+                                                    key={category}
+                                                    className="space-y-4"
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ duration: 0.5 }}
+                                                >
+                                                    <h5 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                                                        {category}
+                                                    </h5>
+                                                    <div className="space-y-2">
+                                                        {tasks.length > 0 ? (
+                                                            tasks.map((task) => (
+                                                                <motion.div
+                                                                    key={task.id}
+                                                                    className="p-4 bg-neutral-100 dark:bg-neutral-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                                                    initial={{ opacity: 0 }}
+                                                                    animate={{ opacity: 1 }}
+                                                                    transition={{ duration: 0.3 }}
+                                                                >
+                                                                    <div className="flex items-center justify-between mb-2">
+                                                                        <div className="flex items-center gap-2">
+                                                                            {task.completed ? (
+                                                                                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                                                            ) : (
+                                                                                <Check className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
+                                                                            )}
+                                                                            <span className={`${task.completed ? 'line-through text-neutral-500 dark:text-neutral-400' : 'text-neutral-800 dark:text-neutral-200'} text-sm`}>
+                                                                                {task.description}
+                                                                            </span>
+                                                                        </div>
+                                                                        {project.members.find(m => m.id === task.assignedTo) && (
+                                                                            <img
+                                                                                src={project.members.find(m => m.id === task.assignedTo)?.avatar || "/placeholder.svg"}
+                                                                                alt={project.members.find(m => m.id === task.assignedTo)?.name || "Unknown"}
+                                                                                className="w-6 h-6 rounded-full"
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </motion.div>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                                                No tasks assigned for this category yet. Stay tuned for updates!
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+                                    )}
 
                                     {/* Progress Bar */}
                                     <div className="mt-4">
@@ -318,7 +397,7 @@ export default function ActiveProjects() {
                         >
                             <div className="flex items-center gap-4 mb-6">
                                 <img
-                                    src={selectedUser.avatar}
+                                    src={selectedUser.avatar || "/placeholder.svg"}
                                     alt={selectedUser.name}
                                     className="w-16 h-16 rounded-full"
                                 />
@@ -351,3 +430,4 @@ export default function ActiveProjects() {
         </div>
     );
 }
+

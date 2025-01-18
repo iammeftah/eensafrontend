@@ -6,8 +6,25 @@
 
 *{
   font-family: "Playfair Display", serif;
-
 }
+
+/* Global scrollbar styling */
+* {
+  scrollbar-width: none; /* For Firefox */
+}
+
+*::-webkit-scrollbar {
+  width: 0; /* For Chrome, Edge, and Safari */
+}
+
+*::-webkit-scrollbar-thumb {
+  display: none; /* Hide the scrollbar thumb */
+}
+
+*::-webkit-scrollbar-track {
+  display: none; /* Hide the scrollbar track */
+}
+
 
 :root {
   --background: 0 0% 100%;

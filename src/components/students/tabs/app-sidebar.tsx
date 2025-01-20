@@ -28,8 +28,13 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
     return (
         <div className="w-96 bg-white/80 dark:bg-neutral-800/50 shadow-md flex flex-col h-screen fixed left-0 top-0 z-10">
             <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex flex-col items-center">
-                <img src="/logoensam.svg" alt="ENSA Marrakech Logo" className="w-24 h-24 mb-4" />
-                <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">Student Space</h1>
+                <a href="/">
+                    <img src="/logoensam.svg" alt="ENSA Marrakech Logo" className="w-24 h-24 mb-4" />
+                </a>
+                <div className="w-full flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">Student Space</h1>
+                    <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} className="mb-4" />
+                </div>
             </div>
             <nav className="flex-1 overflow-y-auto">
                 <ul>
@@ -51,8 +56,7 @@ export default function Sidebar({ setActiveTab, darkMode, toggleDarkMode }: Side
                     ))}
                 </ul>
             </nav>
-            <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
-                <DarkModeToggle darkMode={darkMode} setDarkMode={toggleDarkMode} className="mb-4" />
+            <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 flex flex-row gap-2">
                 <Link
                     to="/student-profile"
                     className="w-full mb-2 bg-[#8B4513] hover:bg-[#7a3a0f] text-white dark:bg-[#8B4513] dark:hover:bg-[#7a3a0f] px-4 py-2 rounded-md text-center block"

@@ -165,7 +165,7 @@ export default function EditProgress({ darkMode }: EditProgressProps) {
 
             {/* Sidebar */}
             <div
-                className={`w-64 bg-white/80 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl ml-4 ${
+                className={`w-72 bg-white/80 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl ml-4 ${
                     darkMode ? "dark" : ""
                 }`}
             >

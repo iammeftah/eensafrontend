@@ -1,11 +1,12 @@
 import { Student } from '@/types/student';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface StudentProfileContextType {
     student: Student;
     darkMode: boolean;
     setDarkMode: (darkMode: boolean) => void;
     onEdit: (updatedStudent: Student) => void;
+    isLoading: boolean; // Add isLoading to the context type
 }
 
 const StudentProfileContext = createContext<StudentProfileContextType | undefined>(undefined);
@@ -49,6 +50,19 @@ export const StudentProfileProvider: React.FC<{children: React.ReactNode}> = ({ 
         }
     });
     const [darkMode, setDarkMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Add isLoading state
+
+    // Simulate loading data from an API
+    useEffect(() => {
+        const fetchData = async () => {
+            // Simulate an API call delay
+            setTimeout(() => {
+                setIsLoading(false); // Set loading to false after data is "fetched"
+            }, 2000);
+        };
+
+        fetchData();
+    }, []);
 
     const onEdit = (updatedStudent: Student) => {
         setStudent(updatedStudent);
@@ -57,9 +71,8 @@ export const StudentProfileProvider: React.FC<{children: React.ReactNode}> = ({ 
     };
 
     return (
-        <StudentProfileContext.Provider value={{ student, darkMode, setDarkMode, onEdit }}>
+        <StudentProfileContext.Provider value={{ student, darkMode, setDarkMode, onEdit, isLoading }}>
             {children}
         </StudentProfileContext.Provider>
     );
 };
-

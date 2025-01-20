@@ -7,6 +7,7 @@ import StudentSpace from './pages/StudentSpace'
 import StudentProfile from './components/students/StudentProfile'
 import { Student } from './types/student'
 import { StudentProfileProvider } from './components/students/StudentProfileContext'
+import TeacherSpace from './components/teacher/teacher-space'
 
 export const mockStudent: Student = {
     id: '1',
@@ -51,7 +52,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/student" element={<StudentSpace/>} />
-                    <Route path="/teacher" element={<div>Teacher Space - Coming Soon</div>} />
+                    <Route path="/teacher" element={<TeacherSpace/>} />
                     <Route path="/about" element={<About/>} />
                     <Route path="/contact" element={<div>Contact - Coming Soon</div>} />
                     <Route
